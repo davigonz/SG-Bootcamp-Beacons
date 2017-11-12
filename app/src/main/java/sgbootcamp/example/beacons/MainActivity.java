@@ -8,11 +8,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
@@ -26,16 +24,13 @@ import android.widget.Toast;
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.BeaconManager;
-import org.altbeacon.beacon.BeaconParser;
-import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * App main activity, gestiona la monitorización de beacons, mostrando un mensaje de los beacons
+ * App main activity, gestiona la detección de beacons, mostrando un mensaje de los beacons
  * detectados
  *
  * @author David González Verdugo
@@ -63,15 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getStartButton().setOnClickListener(this);
         getStopButton().setOnClickListener(this);
 
-        mBeaconManager = BeaconManager.getInstanceForApplication(this);
-
-        // Fijar un protocolo beacon, iBeacon en este caso
-        mBeaconManager.getBeaconParsers().add(new BeaconParser().
-                setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
-
-        ArrayList<Identifier> identifiers = new ArrayList<>();
-
-        mRegion = new Region(ALL_BEACONS_REGION, identifiers);
+        //TODO Inicializar variables necesarias
     }
 
     @Override
@@ -89,17 +76,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 } else { // Permisos de localización concedidos
 
-                    prepareMonitoring();
+                    prepareDetection();
                 }
 
             } else { // Versiones de Android < 6
 
-                prepareMonitoring();
+                prepareDetection();
             }
 
         } else if (view.equals(findViewById(R.id.stopReadingBeaconsButton))) {
 
-            stopMonitoringBeacons();
+            stopDetectingBeacons();
 
             BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -113,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Activar localización y bluetooth para empezar a monitorizar beacons
      */
-    private void prepareMonitoring() {
+    private void prepareDetection() {
 
         if (!isLocationEnabled()) {
 
@@ -129,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             } else if (mBluetoothAdapter.isEnabled()) {
 
-                startMonitoringBeacons();
+                startDetectingBeacons();
 
             } else {
 
@@ -148,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Usuario ha activado el bluetooth
             if (resultCode == RESULT_OK) {
 
-                startMonitoringBeacons();
+                startDetectingBeacons();
 
             } else if (resultCode == RESULT_CANCELED) { // User refuses to enable bluetooth
 
@@ -162,13 +149,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Empezar a monitorizar los beacons, ocultando o mostrando los botones correspondientes
      */
-    private void startMonitoringBeacons() {
+    private void startDetectingBeacons() {
 
-        // Fijar un periodo de escaneo
-        mBeaconManager.setForegroundScanPeriod(DEFAULT_SCAN_PERIOD_MS);
-
-        // Enlazar al servicio de beacons. Obtiene un callback cuando esté listo para ser usado
-        mBeaconManager.bind(this);
+        //TODO Enlazar servicio de beacons, fijando un periodo de escaneo
 
         // Desactivar botón de comenzar
         getStartButton().setEnabled(false);
@@ -182,18 +165,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onBeaconServiceConnect() {
 
-        try {
-            // Empezar a buscar los beacons que encajen con el el objeto Región pasado, incluyendo
-            // actualizaciones en la distancia estimada
-            mBeaconManager.startRangingBeaconsInRegion(mRegion);
+//        try {
+
+            // TODO Empezar a buscar beacons en una región
 
             showToastMessage(getString(R.string.start_looking_for_beacons));
 
-        } catch (RemoteException e) {
-            Log.d(TAG, "Se ha producido una excepción al empezar a buscar beacons " + e.getMessage());
-        }
+//        } catch (RemoteException e) {
+//            Log.d(TAG, "Se ha producido una excepción al empezar a buscar beacons " + e.getMessage());
+//        }
 
-        mBeaconManager.addRangeNotifier(this);
+        // TODO Hacer que esta actividad sea llamada cada DEFAULT_SCAN_PERIOD_MS segundos con los beacons detectados
     }
 
 
@@ -208,24 +190,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             showToastMessage(getString(R.string.no_beacons_detected));
         }
 
-        for (Beacon beacon : beacons) {
-            showToastMessage(getString(R.string.beacon_detected, beacon.getId3()));
-        }
+        //TODO Recorrer beacons mostrando la información necesaria
     }
 
-    private void stopMonitoringBeacons() {
+    private void stopDetectingBeacons() {
 
-        try {
-            mBeaconManager.stopMonitoringBeaconsInRegion(mRegion);
+        //TODO Parar de detectar beacons
+
+        //try {
+
             showToastMessage(getString(R.string.stop_looking_for_beacons));
-        } catch (RemoteException e) {
-            Log.d(TAG, "Se ha producido una excepción al parar de buscar beacons " + e.getMessage());
-        }
 
-        mBeaconManager.removeAllRangeNotifiers();
-
-        // Desenlazar servicio de beacons
-        mBeaconManager.unbind(this);
+        //} catch (RemoteException e) {
+        //    Log.d(TAG, "Se ha producido una excepción al parar de buscar beacons " + e.getMessage());
+        //}
 
         // Activar botón de comenzar
         getStartButton().setEnabled(true);
@@ -261,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (requestCode) {
             case PERMISSION_REQUEST_COARSE_LOCATION: {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    prepareMonitoring();
+                    prepareDetection();
                 } else {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle(R.string.funcionality_limited);
