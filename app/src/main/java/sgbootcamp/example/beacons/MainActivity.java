@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * App main activity, gestiona la monitorización de beacons, mostrando un mensaje de los beacons
+ * App main activity, gestiona la detección de beacons, mostrando un mensaje de los beacons
  * detectados
  *
  * @author David González Verdugo
@@ -89,17 +88,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 } else { // Permisos de localización concedidos
 
-                    prepareMonitoring();
+                    prepareDetection();
                 }
 
             } else { // Versiones de Android < 6
 
-                prepareMonitoring();
+                prepareDetection();
             }
 
         } else if (view.equals(findViewById(R.id.stopReadingBeaconsButton))) {
 
-            stopMonitoringBeacons();
+            stopDetectingBeacons();
 
             BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -111,9 +110,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Activar localización y bluetooth para empezar a monitorizar beacons
+     * Activar localización y bluetooth para empezar a detectar beacons
      */
-    private void prepareMonitoring() {
+    private void prepareDetection() {
 
         if (!isLocationEnabled()) {
 
@@ -129,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             } else if (mBluetoothAdapter.isEnabled()) {
 
-                startMonitoringBeacons();
+                startDetectingBeacons();
 
             } else {
 
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Usuario ha activado el bluetooth
             if (resultCode == RESULT_OK) {
 
-                startMonitoringBeacons();
+                startDetectingBeacons();
 
             } else if (resultCode == RESULT_CANCELED) { // User refuses to enable bluetooth
 
@@ -160,9 +159,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Empezar a monitorizar los beacons, ocultando o mostrando los botones correspondientes
+     * Empezar a detectar los beacons, ocultando o mostrando los botones correspondientes
      */
-    private void startMonitoringBeacons() {
+    private void startDetectingBeacons() {
 
         // Fijar un periodo de escaneo
         mBeaconManager.setForegroundScanPeriod(DEFAULT_SCAN_PERIOD_MS);
@@ -213,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void stopMonitoringBeacons() {
+    private void stopDetectingBeacons() {
 
         try {
             mBeaconManager.stopMonitoringBeaconsInRegion(mRegion);
@@ -261,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (requestCode) {
             case PERMISSION_REQUEST_COARSE_LOCATION: {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    prepareMonitoring();
+                    prepareDetection();
                 } else {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle(R.string.funcionality_limited);
