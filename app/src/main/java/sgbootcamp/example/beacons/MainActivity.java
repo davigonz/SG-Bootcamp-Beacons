@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -63,13 +65,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mBeaconManager = BeaconManager.getInstanceForApplication(this);
 
-        // Fijar un protocolo beacon, Eddystone en este caso
+        // Fijar un protocolo beacon, iBeacon en este caso
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
-                setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
+                setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
 
         ArrayList<Identifier> identifiers = new ArrayList<>();
-
-        identifiers.add(null);
 
         mRegion = new Region(ALL_BEACONS_REGION, identifiers);
     }
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             if (mBluetoothAdapter == null) {
 
-                showToastMessage(R.string.not_support_bluetooth_msg);
+                showToastMessage(getString(R.string.not_support_bluetooth_msg));
 
             } else if (mBluetoothAdapter.isEnabled()) {
 
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             } else if (resultCode == RESULT_CANCELED) { // User refuses to enable bluetooth
 
-                showToastMessage(R.string.no_bluetooth_msg);
+                showToastMessage(getString(R.string.no_bluetooth_msg));
             }
         }
 
@@ -170,11 +170,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Enlazar al servicio de beacons. Obtiene un callback cuando esté listo para ser usado
         mBeaconManager.bind(this);
 
-        // Desactivar botón de empezar
+        // Desactivar botón de comenzar
         getStartButton().setEnabled(false);
+        getStartButton().setAlpha(.5f);
 
         // Activar botón de parar
         getStopButton().setEnabled(true);
+        getStopButton().setAlpha(1);
     }
 
     @Override
@@ -185,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // actualizaciones en la distancia estimada
             mBeaconManager.startRangingBeaconsInRegion(mRegion);
 
-            showToastMessage(R.string.start_looking_for_beacons);
+            showToastMessage(getString(R.string.start_looking_for_beacons));
 
         } catch (RemoteException e) {
             Log.d(TAG, "Se ha producido una excepción al empezar a buscar beacons " + e.getMessage());
@@ -203,12 +205,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
 
         if (beacons.size() == 0) {
-            showToastMessage(R.string.no_beacons_detected);
+            showToastMessage(getString(R.string.no_beacons_detected));
         }
 
         for (Beacon beacon : beacons) {
-            Log.d(TAG, "Se ha detectado un beacon con id " + beacon.getId1() +
-                    " a una distancia aproximada de " + beacon.getDistance() + " metros");
+            showToastMessage(getString(R.string.beacon_detected, beacon.getId3()));
         }
     }
 
@@ -216,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         try {
             mBeaconManager.stopMonitoringBeaconsInRegion(mRegion);
-            showToastMessage(R.string.stop_looking_for_beacons);
+            showToastMessage(getString(R.string.stop_looking_for_beacons));
         } catch (RemoteException e) {
             Log.d(TAG, "Se ha producido una excepción al parar de buscar beacons " + e.getMessage());
         }
@@ -224,9 +225,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Desenlazar servicio de beacons
         mBeaconManager.unbind(this);
 
+        // Activar botón de comenzar
         getStartButton().setEnabled(true);
+        getStartButton().setAlpha(1);
 
+        // Desactivar botón de parar
         getStopButton().setEnabled(false);
+        getStopButton().setAlpha(.5f);
     }
 
     /**
@@ -327,11 +332,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Show toast message
+     * Mostrar mensaje
      *
-     * @param messageStringId
+     * @param message mensaje a enseñar
      */
-    private void showToastMessage (int messageStringId) {
-        Toast.makeText(this, messageStringId, Toast.LENGTH_LONG).show();
+    private void showToastMessage (String message) {
+        Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 }
