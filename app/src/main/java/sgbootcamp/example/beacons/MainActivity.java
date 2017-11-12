@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Activar localización y bluetooth para empezar a monitorizar beacons
+     * Activar localización y bluetooth para empezar a detectar beacons
      */
     private void prepareDetection() {
 
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Empezar a monitorizar los beacons, ocultando o mostrando los botones correspondientes
+     * Empezar a detectar beacons, ocultando o mostrando los botones correspondientes
      */
     private void startDetectingBeacons() {
 
