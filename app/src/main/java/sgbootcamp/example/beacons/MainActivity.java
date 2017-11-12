@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected final String TAG = MainActivity.this.getClass().getSimpleName();;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
-    private static final long DEFAULT_SCAN_PERIOD_MS = 10000l;
+    private static final long DEFAULT_SCAN_PERIOD_MS = 6000l;
     private static final String ALL_BEACONS_REGION = "AllBeaconsRegion";
 
     // Para interactuar con los beacons desde una actividad
@@ -222,6 +222,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "Se ha producido una excepción al parar de buscar beacons " + e.getMessage());
         }
 
+        mBeaconManager.removeAllRangeNotifiers();
+
         // Desenlazar servicio de beacons
         mBeaconManager.unbind(this);
 
@@ -340,5 +342,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mBeaconManager.removeAllRangeNotifiers();
+        mBeaconManager.unbind(this);
     }
 }
