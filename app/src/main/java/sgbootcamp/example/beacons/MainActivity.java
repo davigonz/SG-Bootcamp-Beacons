@@ -21,12 +21,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import org.altbeacon.beacon.Beacon;
-import org.altbeacon.beacon.BeaconConsumer;
-import org.altbeacon.beacon.BeaconManager;
-import org.altbeacon.beacon.RangeNotifier;
-import org.altbeacon.beacon.Region;
-
 import java.util.Collection;
 
 /**
