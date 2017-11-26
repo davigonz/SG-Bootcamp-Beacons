@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Fijar un protocolo beacon, iBeacon en este caso
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
-                setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
+                setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT);
 
         ArrayList<Identifier> identifiers = new ArrayList<>();
 
